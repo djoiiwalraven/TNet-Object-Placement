@@ -1,0 +1,10 @@
+import torch
+
+LEARNING_RATE = 3e-4
+BATCH_SIZE = 64 # 16?
+NUM_EPOCHS = 50
+NUM_WORKERS = 2 # 4?
+
+PIN_MEMORY = True
+LOAD_MODEL = False
+SAVE_MODEL = False
