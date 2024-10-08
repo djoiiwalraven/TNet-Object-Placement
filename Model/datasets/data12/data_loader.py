@@ -3,9 +3,8 @@ from torchvision.transforms import Resize, ToTensor, Compose
 from PIL import Image
 from torch.utils.data import Dataset
 import os
-import numpy as np
 
-class MyDataLoader(Dataset):
+class D12DataLoader(Dataset):
     def __init__(self,root_dir,x_dir,y_dir,image_size=12):
         self.root_dir = root_dir
         self.proj_dir = os.getcwd()

@@ -1,0 +1,17 @@
+DATA_DIR = '/mnt/d'
+TRAIN_DIR = "mapping/train"
+TEST_DIR = "mapping/val"
+OUTPUT_DIR = "../results/mapping"
+
+# DATA ..
+IMAGE_SIZE = 16*10
+CHANNELS_IMG = 3
+
+# TRAINING PARAMETERS
+LEARNING_RATE = 3e-4
+BATCH_SIZE = 32
+NUM_WORKERS = 2
+NUM_EPOCHS = 50
+
+LOAD_MODEL = False
+SAVE_MODEL = False

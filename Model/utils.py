@@ -2,7 +2,6 @@ import torch
 import config
 from torchvision.utils import save_image
 from torch.utils.data import DataLoader
-from data_loader import MyDataLoader
 
 # CHANGE THIS SCRIPT
 def save_example(gen, val_loader, epoch, folder):
@@ -81,15 +80,13 @@ def load_checkpoint(checkpoint, model):
 
 
 def get_loaders(
-        data_dir,
-        x_dir,
-        y_dir,
+        dataset,
         batch_size,
         num_workers=4,
         pin_memory=True
         ):
     
-    dataset = MyDataLoader(data_dir,x_dir,y_dir)
+    dataset = dataset
     train_set, test_set = torch.utils.data.random_split(dataset,[0.8,0.2])
     train_loader = DataLoader(train_set,batch_size=batch_size,num_workers=num_workers,pin_memory=pin_memory,shuffle=True)
     test_loader = DataLoader(test_set,batch_size=batch_size,num_workers=num_workers,pin_memory=pin_memory,shuffle=False)

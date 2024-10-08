@@ -15,6 +15,9 @@ class DiceLoss(nn.Module):
         dice = (2.0 * intersection + self.smooth) / (outputs.sum() + targets.sum() + self.smooth)
         return 1.0 - dice
 
+
+
+'''
 # Composite loss function
 def composite_loss(outputs, targets, bce_weight=0.5, dice_weight=0.5):
     # BCEWithLogitsLoss expects raw logits
@@ -22,3 +25,5 @@ def composite_loss(outputs, targets, bce_weight=0.5, dice_weight=0.5):
     dice_loss = DiceLoss()(outputs, targets)
     total_loss = bce_weight * bce_loss + dice_weight * dice_loss
     return total_loss
+
+'''
