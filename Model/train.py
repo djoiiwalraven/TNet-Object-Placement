@@ -8,12 +8,14 @@ import datasets.data12.config as d12cf
 import datasets.mapping.config as mcf
 
 from datasets.data12.data_loader import D12DataLoader
-from datasets.mapping.data_loader import MappingDataLoader
+#from datasets.mapping.data_loader import MappingDataLoader
 
 from torch.utils.data import DataLoader
 
 from Unet.Unet import Unet
 from Tnet.Tnet import Tnet
+from Anet.Anet import Anet
+from ContextNet.ContextNet import ContextNet
 from Tnet.loss_functions import GDiceLoss, DiceLoss, FocalLossMultiClass, GIoULoss, CompositeLoss
 #from Tnet.dice_loss import composite_loss
 
@@ -93,33 +95,41 @@ def main():
     #model = Tnet(in_channels=1,out_channels=1,feature_length=2).to(cf.DEVICE)
     
     # mapping model
-    model = Tnet(in_channels=3,out_channels=3,init_features=64,feature_length=4).to(cf.DEVICE)
-
+    model = Anet(in_channels=1,out_channels=1,init_features=64,feature_length=2).to(cf.DEVICE)
+    #print(model)
+    #quit()
     #loss_fn = composite_loss # loss for binary 
     #loss_fn = nn.MSELoss() # Binary Cross Entropy
 
-    l1 = nn.SmoothL1Loss(beta=1.0)
-    l2 = nn.MSELoss()
-    loss_fn = CompositeLoss(l1,l2,.7)
+    #l1 = nn.SmoothL1Loss(beta=1.0)
 
-    optimizer = optim.Adam(model.parameters(),lr=mcf.LEARNING_RATE)
+    l1 = DiceLoss() # VERY NEEDED but only works with another
+
+
+    l2 = nn.MSELoss()
+    #l2 = nn.SmoothL1Loss(beta=1.0)
+
+    
+
+
+    loss_fn = CompositeLoss(l1,l2,.8)
+
+    optimizer = optim.Adam(model.parameters(),lr=d12cf.LEARNING_RATE)
     #optimizer = optim.SGD(model.parameters(),lr=mcf.LEARNING_RATE, momentum=.7)
     #optimizer = torch.optim.Adam(model.parameters(), lr=mcf.LEARNING_RATE, weight_decay=1e-5)
     scaler = torch.amp.GradScaler(cf.DEVICE)
 
+    
+    
     # Need fix but is for data12 model
-    #train_loader, _ = get_loaders(d12cf.DATA_DIR,d12cf.X_DIR,d12cf.Y_DIR,d12cf.BATCH_SIZE)
-    #_, test_loader = get_loaders(d12cf.DATA_DIR,d12cf.X_DIR,d12cf.Y_DIR,d12cf.BATCH_SIZE//4)
+    d12_data = D12DataLoader(d12cf.DATA_DIR,d12cf.X_DIR,d12cf.Y_DIR)
 
-    # Mapping Model Datasources
-    train_set = MappingDataLoader(mcf.DATA_DIR,mcf.TRAIN_DIR,mcf.IMAGE_SIZE)
-    train_loader = DataLoader(train_set,batch_size=mcf.BATCH_SIZE,num_workers=mcf.NUM_WORKERS,pin_memory=cf.PIN_MEMORY,shuffle=True)
-
-    test_set = MappingDataLoader(mcf.DATA_DIR,mcf.TEST_DIR,mcf.IMAGE_SIZE)
-    test_loader = DataLoader(test_set,batch_size=mcf.BATCH_SIZE,num_workers=mcf.NUM_WORKERS,pin_memory=cf.PIN_MEMORY,shuffle=True)
+    train_loader, test_loader = get_loaders(d12_data,d12cf.BATCH_SIZE,d12cf.NUM_WORKERS)
+    #_, test_loader = get_loaders(d12_data,d12cf.BATCH_SIZE,d12cf.NUM_WORKERS)
 
 
     for epoch in range(d12cf.NUM_EPOCHS):
+        print(f'{epoch}/{d12cf.NUM_EPOCHS}:')
         train_fn(train_loader,model,optimizer,loss_fn,scaler)
         
 
@@ -130,12 +140,10 @@ def main():
         }
 
         #save_checkpoint(checkpoint)
+        
         check_accuracy(test_loader, model, device=cf.DEVICE)
-        #compare_diff(model,test_loader,epoch,d12cf.OUTPUT_DIR)
-        save_example(model,test_loader,epoch,mcf.OUTPUT_DIR)
-
-        # check accuracy
-        # print some examples
+        compare_diff(model,test_loader,epoch,d12cf.OUTPUT_DIR)
+        #save_example(model,test_loader,epoch,d12cf.OUTPUT_DIR)
 
 if __name__ == "__main__":
     main()

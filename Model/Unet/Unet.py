@@ -7,11 +7,11 @@ class Unet(nn.Module):
     def __init__(self,
                  in_channels=1,
                  out_channels=1,
-                 init_feature = 64,
+                 init_features = 64,
                  feature_length = 4,
                  ):
         super(Unet,self).__init__()
-        self.features = [init_feature * 2**i for i in range(feature_length)]
+        self.features = [init_features * 2**i for i in range(feature_length)]
 
         self.ups = nn.ModuleList()
         self.downs = nn.ModuleList()
